@@ -1,1 +1,2 @@
-# mips_design
+# MIPS Pipelined On SoC
+This project implements a high-performance MIPS-based System-on-Chip (SoC) designed through a three-phase architectural progression. It begins with a Single-Cycle MIPS core to validate the Instruction Set Architecture (ISA) and basic control logic functionality. The design then evolves into a 5-stage Pipelined implementation, integrating hazard detection and forwarding units to resolve data and control dependencies. The final phase involves full SoC integration
