@@ -2,14 +2,14 @@
 Inputs:
     1 - srcA
     2 - srcB
-    3 - ALU_control: 4-bits Alu Control Signal
-        0000 -> and
-        0001 -> or
-        0010 -> add
-        0011 -> nor
-        0100 -> xor
-        0110 -> sub
-        0111 -> slt
+    3 - ALU_control: 3-bits Alu Control Signal
+        000 -> and
+        001 -> or
+        010 -> add
+        011 -> nor
+        100 -> xor
+        110 -> sub
+        111 -> slt
 Output:
     1 - alu_out
     2 - zero_flg

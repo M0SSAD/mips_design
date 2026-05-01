@@ -1,4 +1,9 @@
-SingleCycle\.qverify
-SingleCycle\qcache
-SingleCycle\work
-SingleCycle\work_lint
+SingleCycle/.qverify/
+SingleCycle/qcache/
+SingleCycle/work/
+SingleCycle/work_lint/
+SingleCycle/SingleCycle.cr.mti
+SingleCycle/SingleCycle.mpf
+SingleCycle/SingleCycle.mpf_new
+SingleCycle/vsim.wlf
+SingleCycle/run.do

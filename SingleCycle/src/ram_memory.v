@@ -3,7 +3,7 @@ module ram_memory #(parameter depth = 1024, parameter width = 8) (
     input [$clog2(depth) - 1: 0] addr,
     input [4*(width) - 1: 0] wr_data,
 
-    output [4*(width) - 1: 0] rd_data
+    output wire [4*(width) - 1: 0] rd_data
 );
 
 reg [width - 1: 0] mem [0: depth - 1];
