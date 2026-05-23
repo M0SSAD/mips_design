@@ -4,15 +4,18 @@ typedef enum logic [1:0] {
   J_TYPE
 } instr_type_e;
 
-// 1. ADDED NEW OPCODES (andi=12, ori=13, xori=14, lui=15)
+// Expanded Opcodes (Added lb=32, lh=33, lbu=36, sb=40, sh=41)
 typedef enum logic [5:0] {
   r_type = 0, j = 2, beq = 4, addi = 8, 
   andi = 12, ori = 13, xori = 14, lui = 15, 
-  lw = 35, sw = 43
+  lb = 32, lh = 33, lw = 35, lbu = 36, sb = 40, sh = 41, sw = 43
 } opcode_e;
 
+// Expanded Funct Codes (Added mfhi=16, mflo=18, mult=24, div=26)
 typedef enum logic [5:0] {
-  sll = 0, srl = 2, sra = 3, sllv = 4, srlv = 6, srav = 7, add = 32, sub = 34, andd = 36, orr = 37, slt = 42
+  sll = 0, srl = 2, sra = 3, sllv = 4, srlv = 6, srav = 7, 
+  jr = 8, mfhi = 16, mflo = 18, mult = 24, div = 26, 
+  add = 32, sub = 34, andd = 36, orr = 37, slt = 42
 } funct_e;
 
 typedef enum logic [4:0] {
@@ -45,28 +48,36 @@ class transaction;
         
         // 1. Shift Constraint Routing
         if (R_TYPE_instruction.funct inside {sll, srl, sra}) {
-            // Standard shifts ignore rs, but randomize shamt
             R_TYPE_instruction.rs == r_zero; 
         } else if (R_TYPE_instruction.funct inside {sllv, srlv, srav}) {
-            // Variable shifts use rs, but ignore shamt
             R_TYPE_instruction.shamt == 0; 
+        
+        // 2. Multiplier/Divider Constraints
+        } else if (R_TYPE_instruction.funct inside {mult, div}) {
+            R_TYPE_instruction.rd == r_zero;
+            R_TYPE_instruction.shamt == 0;
+            
+        // 3. Move from HI/LO Constraints
+        } else if (R_TYPE_instruction.funct inside {mfhi, mflo}) {
+            R_TYPE_instruction.rs == r_zero;
+            R_TYPE_instruction.rt == r_zero;
+            R_TYPE_instruction.shamt == 0;
+            
         } else {
-            // Standard math ignores shamt
             R_TYPE_instruction.shamt == 0; 
         }
     } 
     else if (option == I_TYPE) { 
         instruction == I_TYPE_instruction;
-        // 2. CONSTRAIN GENERATOR TO VALID I-TYPE OPCODES
-        I_TYPE_instruction.opcode inside {beq, addi, andi, ori, xori, lui, lw, sw};
+        // 4. Memory/Immediate Constraint Routing
+        I_TYPE_instruction.opcode inside {beq, addi, andi, ori, xori, lui, lb, lh, lw, lbu, sb, sh, sw};
     } 
     else if (option == J_TYPE) { 
         instruction == J_TYPE_instruction;
-        J_TYPE_instruction.opcode == j;
+        J_TYPE_instruction.opcode inside {j}; // Excluded jal for random testing to avoid crashing ra
     }
   }
 
-  // 3. THE HARDWARE SAFETY CONSTRAINT FOR LUI
   constraint lui_rs_zero {
       if (option == I_TYPE && I_TYPE_instruction.opcode == lui) {
           I_TYPE_instruction.rs == r_zero;
@@ -74,8 +85,7 @@ class transaction;
   }
 
   constraint instr_dist_constr {
-    option dist { R_TYPE := 60, I_TYPE := 40, J_TYPE := 0 };
-    // Jumps temporarily disabled
+    option dist { R_TYPE := 50, I_TYPE := 50, J_TYPE := 0 };
   }
 endclass
 
@@ -152,18 +162,21 @@ module tb_sc_mips ();
     #(clk_period * 100); // Let the processor run
 
     // Only run the hardcoded register checks if we are running the directed test
+    // Only run the hardcoded register checks if we are running the directed test
     if (!$test$plusargs("RANDOM")) begin
-        if (MIPSTOP.rf_unit.register_file[17] !== 32'h000004B0) $display("FAIL: $s1 (Reg 17) | Got: %h", MIPSTOP.rf_unit.register_file[17]);
-        else $display("PASS: $s1 Initialization");
-
-        if (MIPSTOP.rf_unit.register_file[18] !== 32'h00000FA0) $display("FAIL: $s2 (Reg 18) | Got: %h", MIPSTOP.rf_unit.register_file[18]);
-        else $display("PASS: ADD Instruction");
-
-        if (MIPSTOP.rf_unit.register_file[19] !== 32'h00000640) $display("FAIL: $s3 (Reg 19) | Got: %h", MIPSTOP.rf_unit.register_file[19]);
-        else $display("PASS: SUB Instruction");
-
-        if (MIPSTOP.rf_unit.register_file[16] === 32'hFFFFD08E) $display(">>> FINAL STATUS: ALL TESTS PASSED! <<<");
-        else $display(">>> FINAL STATUS: FAILED <<<");
+        if (MIPSTOP.rf_unit.register_file[16] === 32'h1337BEEF) begin
+            $display("========================================");
+            $display(">>> FINAL STATUS: ALL TESTS PASSED! <<<");
+            $display("========================================");
+        end else if (MIPSTOP.rf_unit.register_file[16] === 32'hDEADDEAD) begin
+            $display("========================================");
+            $display(">>> FINAL STATUS: FAILED AT AN ASSERTION <<<");
+            $display("========================================");
+        end else begin
+            $display("========================================");
+            $display(">>> FINAL STATUS: UNKNOWN FAILURE (CRASH) <<<");
+            $display("========================================");
+        end
     end else begin
         $display(">>> RANDOM RUN COMPLETE. CHECK WAVEFORMS. <<<");
     end

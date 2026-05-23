@@ -8,7 +8,7 @@ module ctrl_unit (
 reg [2:0] alu_op;
 
 always @(*) begin
-  // Safe Defaults
+  // Defaults
   jump = 0; jump_register = 0; md_en = 0; md_ctrl = 2'b00; mem_type = 3'b000;
   
   case (opcode) 
