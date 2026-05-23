@@ -19,7 +19,8 @@ Output:
 
 module alu32_bit(
     input signed [31:0] srcA, srcB,
-    input [2:0] ALU_control,
+    input [3:0] ALU_control,
+    input [4:0] shamt,
     output reg [31:0]  alu_out,
     output zero_flg, gt, lt
 );
@@ -32,13 +33,19 @@ module alu32_bit(
 always@(*)
 begin
     case (ALU_control)
-        3'b000: alu_out = srcA & srcB; 
-        3'b001: alu_out = srcA | srcB;
-        3'b010: alu_out = srcA + srcB;
-        3'b011: alu_out = ~(srcA | srcB);
-        3'b100: alu_out = srcA ^ srcB;
-        3'b110: alu_out = srcA - srcB;
-        3'b111: alu_out = (srcA < srcB)? 32'b1 : 32'b0;
+        4'b0000: alu_out = srcA & srcB; // and
+        4'b0001: alu_out = srcA | srcB; // or
+        4'b0010: alu_out = srcA + srcB; // add
+        4'b0011: alu_out = ~(srcA | srcB); // nor
+        4'b0100: alu_out = srcA ^ srcB; // xor
+        4'b0110: alu_out = srcA - srcB; // sub
+        4'b0111: alu_out = (srcA < srcB)? 32'b1 : 32'b0; // slt
+        4'b1000: alu_out = (srcB << shamt); // sll
+        4'b1001: alu_out = (srcB >> shamt); // srl
+        4'b1010: alu_out = (srcB >>> shamt); // sra
+        4'b1011: alu_out = (srcB << srcA[4:0]);  // sllv
+        4'b1100: alu_out = (srcB >> srcA[4:0]);  // srlv
+        4'b1101: alu_out = (srcB >>> srcA[4:0]); // srav
         default: alu_out = srcA;
     endcase
 end

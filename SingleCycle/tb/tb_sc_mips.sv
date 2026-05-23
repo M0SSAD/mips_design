@@ -12,7 +12,7 @@ typedef enum logic [5:0] {
 } opcode_e;
 
 typedef enum logic [5:0] {
-  add = 32, sub = 34, andd = 36, orr = 37, slt = 42
+  sll = 0, srl = 2, sra = 3, sllv = 4, srlv = 6, srav = 7, add = 32, sub = 34, andd = 36, orr = 37, slt = 42
 } funct_e;
 
 typedef enum logic [4:0] {
@@ -40,17 +40,28 @@ class transaction;
 
   constraint instr_constr {
     if (option == R_TYPE) { 
-        instruction == R_TYPE_instruction; 
+        instruction == R_TYPE_instruction;
         R_TYPE_instruction.opcode == r_type;
-        R_TYPE_instruction.shamt == 0; // Force 0 since shift datapath is not built yet
+        
+        // 1. Shift Constraint Routing
+        if (R_TYPE_instruction.funct inside {sll, srl, sra}) {
+            // Standard shifts ignore rs, but randomize shamt
+            R_TYPE_instruction.rs == r_zero; 
+        } else if (R_TYPE_instruction.funct inside {sllv, srlv, srav}) {
+            // Variable shifts use rs, but ignore shamt
+            R_TYPE_instruction.shamt == 0; 
+        } else {
+            // Standard math ignores shamt
+            R_TYPE_instruction.shamt == 0; 
+        }
     } 
     else if (option == I_TYPE) { 
-        instruction == I_TYPE_instruction; 
+        instruction == I_TYPE_instruction;
         // 2. CONSTRAIN GENERATOR TO VALID I-TYPE OPCODES
         I_TYPE_instruction.opcode inside {beq, addi, andi, ori, xori, lui, lw, sw};
     } 
     else if (option == J_TYPE) { 
-        instruction == J_TYPE_instruction; 
+        instruction == J_TYPE_instruction;
         J_TYPE_instruction.opcode == j;
     }
   }
@@ -63,7 +74,8 @@ class transaction;
   }
 
   constraint instr_dist_constr {
-    option dist { R_TYPE := 60, I_TYPE := 40, J_TYPE := 0 }; // Jumps temporarily disabled
+    option dist { R_TYPE := 60, I_TYPE := 40, J_TYPE := 0 };
+    // Jumps temporarily disabled
   }
 endclass
 
