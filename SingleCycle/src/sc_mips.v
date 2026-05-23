@@ -20,12 +20,17 @@ module sc_mips(
     wire zero_flag, gt_flag, lt_flag;
     wire pc_src_branch = branch & zero_flag;
     wire [31:0] branch_pc_mux;
+    // construct the address of the target that we will jump or branch to.
     assign jump_target = {pc_plus_4[31:28], instr[25:0], 2'b00};
     assign branch_target = pc_plus_4 + (sign_ext_imm << 2); 
+    // which bits of the instructions are your destination address?
     assign write_reg_addr = reg_dst ? instr[15:11] : instr[20:16];
+    // which is the second operand in the ALU, an immediate value or a value from a register.
     assign srcB = alu_src ? sign_ext_imm : rd2;
+    // What is written into the register file, a read data from the memory or the output of the alu.
     assign write_back_data = mem_to_reg ? mem_rd_data : alu_out;
     assign pc_plus_4 = pc_current + 4;
+    // MUXs to determine the next value of the program counter.
     assign branch_pc_mux = pc_src_branch ? branch_target : pc_plus_4;
     assign pc_next = jump ? jump_target : branch_pc_mux; 
 

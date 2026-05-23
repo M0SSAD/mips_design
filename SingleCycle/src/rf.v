@@ -9,6 +9,7 @@ module rf (
 
 reg [31:0] register_file [0:31];
 
+// wiring address of register $zero to zero directly, and mapping other addresses to their value.
 assign RD1 = (A1 != 5'b0) ? register_file[A1] : 32'b0;
 assign RD2 = (A2 != 5'b0) ? register_file[A2] : 32'b0;
 

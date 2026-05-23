@@ -8,7 +8,7 @@ Output:
 */
 module pc_reg(
     input clk, rst_n,
-    input [31:0]pc_next,
+    input [31:0] pc_next,
     output reg [31:0] pc
 );
 

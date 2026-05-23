@@ -13,6 +13,7 @@ module ctrl_unit (
     output reg jump
 );
 reg [1:0] alu_op;
+// Identify the instruction using the opcode.
 always @(*) begin
   case (opcode) 
    6'b000000 : begin reg_write=1; reg_dst=1; alu_src=0; branch=0; mem_write=0; mem_to_reg=0; alu_op=2'b10; jump=0; end //R-type
@@ -21,10 +22,11 @@ always @(*) begin
    6'b000100 : begin reg_write=0; reg_dst=0; alu_src=0; branch=1; mem_write=0; mem_to_reg=0; alu_op=2'b01; jump=0; end // beq
    6'b001000 : begin reg_write=1; reg_dst=0; alu_src=1; branch=0; mem_write=0; mem_to_reg=0; alu_op=2'b00; jump=0; end // addi
    6'b000010 : begin reg_write=1; reg_dst=0; alu_src=0; branch=0; mem_write=0; mem_to_reg=0; alu_op=2'b00; jump=1; end // j
-   default      : begin reg_write=1; reg_dst=1; alu_src=0; branch=0; mem_write=0; mem_to_reg=0; alu_op=2'b00; jump=1; end 
+   default   : begin reg_write=1; reg_dst=1; alu_src=0; branch=0; mem_write=0; mem_to_reg=0; alu_op=2'b00; jump=1; end 
   endcase  
 end
 
+// based on the alu_op specify the alu operation.
 always @(*) begin
     casex({alu_op, funct}) 
         8'b00_xxxxxx: alu_control = 3'b010; //add

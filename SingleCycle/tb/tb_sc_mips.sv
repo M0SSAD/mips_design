@@ -184,8 +184,6 @@ module tb_sc_mips ();
     $display("========================================");
 
     // 1. Check the Intermediate Math Results
-    // Replace "rf_unit" with the actual name of your RF inside sc_mips
-    // Replace "register_file" with the actual 2D array name inside your rf.v
     
     if (MIPSTOP.rf_unit.register_file[17] !== 32'h000004B0) $display("FAIL: $s1 (Reg 17) | Expected: 000004B0 | Got: %h", MIPSTOP.rf_unit.register_file[17]);
     else $display("PASS: $s1 Initialization");
