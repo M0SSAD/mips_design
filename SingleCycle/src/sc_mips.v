@@ -82,7 +82,7 @@ module sc_mips(
         .funct(instr[5:0]),
         .opcode(instr[31:26]),
         .mem_to_reg(mem_to_reg),
-        .branch(branch),
+        .branch(branch_type),
         .mem_write(mem_write),
         .alu_control(alu_ctrl),
         .alu_src(alu_src),
