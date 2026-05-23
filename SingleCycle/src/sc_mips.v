@@ -4,12 +4,12 @@ module sc_mips(
 
     wire [2:0] alu_ctrl;
     wire reg_write, alu_src, mem_to_reg, mem_write, branch, jump;
-
     wire[31:0] pc_current, pc_next, pc_plus_4;
     wire[31:0] instr;
     wire[31:0] srcA, srcB, rd2;
     wire[31:0] alu_out;
-    wire[31:0] sign_ext_imm;
+    wire[31:0] ext_imm;
+    wire [1:0] ext_ctrl;
     wire[31:0] mem_rd_data;
     wire[31:0] write_back_data;
     wire[3:0] s0_reg;
@@ -22,11 +22,11 @@ module sc_mips(
     wire [31:0] branch_pc_mux;
     // construct the address of the target that we will jump or branch to.
     assign jump_target = {pc_plus_4[31:28], instr[25:0], 2'b00};
-    assign branch_target = pc_plus_4 + (sign_ext_imm << 2); 
+    assign branch_target = pc_plus_4 + (ext_imm << 2); 
     // which bits of the instructions are your destination address?
     assign write_reg_addr = reg_dst ? instr[15:11] : instr[20:16];
     // which is the second operand in the ALU, an immediate value or a value from a register.
-    assign srcB = alu_src ? sign_ext_imm : rd2;
+    assign srcB = alu_src ? ext_imm : rd2;
     // What is written into the register file, a read data from the memory or the output of the alu.
     assign write_back_data = mem_to_reg ? mem_rd_data : alu_out;
     assign pc_plus_4 = pc_current + 4;
@@ -63,7 +63,8 @@ module sc_mips(
         .alu_src(alu_src),
         .reg_dst(reg_dst),
         .reg_write(reg_write),
-        .jump(jump)
+        .jump(jump),
+        .ext_ctrl(ext_ctrl)
     );
 
     alu32_bit alu32_bit_unit(
@@ -93,9 +94,10 @@ module sc_mips(
         .rd_data(instr)
     );
 
-    sign_extend sign_extend_unit(
+    extend extension_Unit(
         .imm(instr[15:0]),
-        .imm_sign(sign_ext_imm)
+        .ext_imm(ext_imm),
+        .ext_ctrl(ext_ctrl)
     );
 
 endmodule

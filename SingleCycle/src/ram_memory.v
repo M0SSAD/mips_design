@@ -11,11 +11,11 @@ module ram_memory #(parameter depth = 1024, parameter width = 8) (
 reg [width - 1: 0] mem [0: depth - 1];
 integer i;
 // initialize the memory with 0 values.
-initial begin
-    for(i = 0; i < depth; i = i + 1) begin
-        mem[i] <= 8'b0;
-    end
-end
+// initial begin
+//     for(i = 0; i < depth; i = i + 1) begin
+//         mem[i] <= 8'b0;
+//     end
+// end
 // write the data at each positive edge if write was enabled.
 always @(posedge(clk)) begin
     if(wr_en) begin
