@@ -88,7 +88,7 @@ module sc_mips(
     );
 
     ram_memory ram_memory_unit(
-        .clk(clk), .byte_en(byte_en), .addr(alu_out[9:0]),
+        .clk(clk), .byte_en(byte_en), .addr({alu_out[9:2], 2'b00}),
         .wr_data(ram_wr_data), .rd_data(ram_rd_data)
     );
 
