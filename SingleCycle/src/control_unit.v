@@ -1,4 +1,4 @@
-module ctrl_unit (
+٩module ctrl_unit (
     input wire [5:0]  funct, opcode,
     output reg [2:0] mem_to_reg, mem_type, // Expanded
     output reg [1:0] branch_type, reg_dst, ext_ctrl, md_ctrl,
@@ -23,7 +23,7 @@ always @(*) begin
         if (funct == 6'b010010) begin mem_to_reg = 3'b100; end         // mflo
    end 
    
-   // Memory Instructions (Added Sub-Word)
+   // Memory Instructions
    6'b100011 : begin reg_write=1; reg_dst=2'b00; alu_src=1; branch_type=2'b00; mem_write=0; mem_to_reg=3'b001; alu_op=3'b000; ext_ctrl=2'b00; mem_type=3'b000; end // lw 
    6'b101011 : begin reg_write=0; reg_dst=2'b00; alu_src=1; branch_type=2'b00; mem_write=1; mem_to_reg=3'b000; alu_op=3'b000; ext_ctrl=2'b00; mem_type=3'b000; end // sw
    6'b100000 : begin reg_write=1; reg_dst=2'b00; alu_src=1; branch_type=2'b00; mem_write=0; mem_to_reg=3'b001; alu_op=3'b000; ext_ctrl=2'b00; mem_type=3'b010; end // lb
