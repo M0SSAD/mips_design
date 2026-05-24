@@ -50,7 +50,7 @@ always @(*) begin
   endcase 
 end
 
-// ALU Decoder (Leave unchanged from your previous implementation)
+
 always @(*) begin
     casex({alu_op, funct}) 
         9'b000_xxxxxx: alu_control = 4'b0010; // I-Type ADD (lw, sw, addi, lui)
