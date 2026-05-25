@@ -6,8 +6,8 @@ module mult_div(
     output reg [31:0] hi_out,
     output reg [31:0] lo_out
 );
-    wire signed [31:0] signed_A = srcA;
-    wire signed [31:0] signed_B = srcB;
+    wire signed [31:0] signed_A = $signed(srcA);
+    wire signed [31:0] signed_B = $signed(srcA);
     
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
@@ -17,8 +17,22 @@ module mult_div(
             case (md_ctrl)
                 2'b00: {hi_out, lo_out} <= signed_A * signed_B;          // mult
                 2'b01: {hi_out, lo_out} <= srcA * srcB;                  // multu
-                2'b10: begin hi_out <= signed_A % signed_B; lo_out <= signed_A / signed_B; end // div
-                2'b11: begin hi_out <= srcA % srcB; lo_out <= srcA / srcB; end                 // divu
+                2'b10: begin // div
+                    if (srcB == 32'b0) begin
+                        hi_out <= 32'b0; lo_out <= 32'b0;       // Prevent X propagation from dividing by zero.
+                    end else begin
+                        hi_out <= signed_A % signed_B; 
+                        lo_out <= signed_A / signed_B; 
+                    end
+                end
+                2'b11: begin // divu
+                    if (srcB == 32'b0) begin
+                        hi_out <= 32'b0; lo_out <= 32'b0;       // Prevent X propagation from dividing by zero.
+                    end else begin
+                        hi_out <= srcA % srcB; 
+                        lo_out <= srcA / srcB; 
+                    end
+                end
             endcase
         end
     end

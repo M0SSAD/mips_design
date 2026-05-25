@@ -53,7 +53,7 @@ class transaction;
             R_TYPE_instruction.shamt == 0; 
         
         // 2. Multiplier/Divider Constraints
-        } else if (R_TYPE_instruction.funct inside {mult, div}) {
+        } else if (R_TYPE_instruction.funct inside {mult, multu, div, divu}) {
             R_TYPE_instruction.rd == r_zero;
             R_TYPE_instruction.shamt == 0;
             

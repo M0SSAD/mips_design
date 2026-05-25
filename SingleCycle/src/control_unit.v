@@ -18,7 +18,9 @@ always @(*) begin
         
         if (funct == 6'b001000) begin jump = 1; jump_register = 1; end // jr
         if (funct == 6'b011000) begin md_en = 1; md_ctrl = 2'b00; end  // mult
+        if (funct == 6'b011001) begin md_en = 1; md_ctrl = 2'b01; end  // multu
         if (funct == 6'b011010) begin md_en = 1; md_ctrl = 2'b10; end  // div
+        if (funct == 6'b011011) begin md_en = 1; md_ctrl = 2'b11; end  // divu
         if (funct == 6'b010000) begin mem_to_reg = 3'b011; end         // mfhi
         if (funct == 6'b010010) begin mem_to_reg = 3'b100; end         // mflo
    end 
