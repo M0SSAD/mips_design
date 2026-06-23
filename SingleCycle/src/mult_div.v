@@ -7,7 +7,7 @@ module mult_div(
     output reg [31:0] lo_out
 );
     wire signed [31:0] signed_A = $signed(srcA);
-    wire signed [31:0] signed_B = $signed(srcA);
+    wire signed [31:0] signed_B = $signed(srcB);
     
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
