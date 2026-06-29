@@ -88,7 +88,7 @@ module sc_mips(
     );
 
     ram_memory ram_memory_unit(
-        .clk(clk), .byte_en(byte_en), .addr({alu_out[9:2], 2'b00}),
+        .clk(clk), .byte_en(byte_en), .addr({alu_out[9:2], 2'b00}) // 10 bits for 1024 locations, each 4 locations describe a word,
         .wr_data(ram_wr_data), .rd_data(ram_rd_data)
     );
 
