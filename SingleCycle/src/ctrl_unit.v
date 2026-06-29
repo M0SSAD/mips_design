@@ -4,13 +4,15 @@ module ctrl_unit (
     output reg [2:0] mem_to_reg, mem_type, // Expanded
     output reg [2:0] branch_type, reg_dst, ext_ctrl, md_ctrl,
     output reg mem_write, alu_src, reg_write, jump, jump_register, md_en,
-    output reg [4:0] alu_control
+    output reg [4:0] alu_control,
+    output reg srcB_zero
 );
 reg [2:0] alu_op;
 
 always @(*) begin
   // Defaults
   jump = 0; jump_register = 0; md_en = 0; md_ctrl = 2'b00; mem_type = 3'b000;
+  srcB_zero = 0;
   
   case (opcode) 
    6'b000000 : begin // R-Type
@@ -24,7 +26,6 @@ always @(*) begin
         if (funct == 6'b011011) begin md_en = 1; md_ctrl = 2'b11; end  // divu
         if (funct == 6'b010000) begin mem_to_reg = 3'b011; end         // mfhi
         if (funct == 6'b010010) begin mem_to_reg = 3'b100; end         // mflo
-        // ADD JAL.
    end 
    
    // Memory Instructions
@@ -40,8 +41,8 @@ always @(*) begin
    // Branch & Jumps
    6'b000100 : begin reg_write=0; reg_dst=2'b00; alu_src=0; branch_type=3'b001; mem_write=0; mem_to_reg=3'b000; alu_op=3'b001; ext_ctrl=2'b00; end // beq
    6'b000101 : begin reg_write=0; reg_dst=2'b00; alu_src=0; branch_type=3'b010; mem_write=0; mem_to_reg=3'b000; alu_op=3'b001; ext_ctrl=2'b00; end // bne
-   6'b000111 : begin reg_write=0; reg_dst=2'b00; alu_src=1; branch_type=3'b100; mem_write=0; mem_to_reg=3'b000; alu_op=3'b001; ext_ctrl=2'b11; end // bgtz
-   6'b000001 : begin reg_write=0; reg_dst=2'b00; alu_src=1; mem_write=0; mem_to_reg=3'b000; alu_op=3'b001; ext_ctrl=2'b11;
+   6'b000111 : begin reg_write=0; reg_dst=2'b00; alu_src=1; branch_type=3'b100; mem_write=0; mem_to_reg=3'b000; alu_op=3'b001; ext_ctrl=2'b00; srcB_zero = 1; end // bgtz
+   6'b000001 : begin reg_write=0; reg_dst=2'b00; alu_src=1; mem_write=0; mem_to_reg=3'b000; alu_op=3'b001; ext_ctrl=2'b00; srcB_zero = 1;
     if(rt == 5'b00000) branch_type=3'b011; /*bltz*/ else begin branch_type=3'b101; end /*bgez*/
     end
    6'b000010 : begin reg_write=0; reg_dst=2'b00; alu_src=0; branch_type=3'b000; mem_write=0; mem_to_reg=3'b000; alu_op=3'b000; jump=1; ext_ctrl=2'b00; end // j
@@ -70,7 +71,10 @@ always @(*) begin
         9'b011_xxxxxx: alu_control = 5'b00000; // I-Type AND (andi)
         9'b100_xxxxxx: alu_control = 5'b00001; // I-Type OR  (ori)
         9'b101_xxxxxx: alu_control = 5'b00100; // I-Type XOR (xori)
-        9'b110_xxxxxx: alu_control = 5'b00111; // slti/ sltiu
+        9'b110_xxxxxx: begin
+            if (ext_ctrl == 2'b01) alu_control = 5'b01110; // sltiu
+            else alu_control = 5'b00111; // slti
+        end
         
         // R-Types
         9'b010_100000: alu_control = 5'b00010; // add

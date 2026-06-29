@@ -130,7 +130,46 @@ module tb_sc_mips ();
     end
     $fclose(fd);
   endtask
+   
+// Debug: print PC and relevant signals on every clock edge
+//  always @(posedge clk) begin
+//      #1;   // small delay to let signals settle
+//      if (MIPSTOP.pc_current == 32'h00000020) begin
+//          $display("At PC=0x20, $v0 = %h, gt_flag = %b", 
+//                   MIPSTOP.rf_unit.register_file[2], 
+//                   MIPSTOP.alu32_bit_unit.gt);
+//      end
+//      $display("PC = %h, instr = %h", MIPSTOP.pc_current, MIPSTOP.instr);
+//  end
 
+//always @(posedge clk) begin
+//    #1;
+//    if (MIPSTOP.pc_current == 32'h00000020) begin
+//        $display("--- At PC=0x20 ---");
+//        $display("  instr          = %h", MIPSTOP.instr);
+//        $display("  branch_type    = %b", MIPSTOP.branch_type);
+//        $display("  gt_flag        = %b", MIPSTOP.gt_flag);
+//        $display("  pc_src_branch  = %b", MIPSTOP.pc_src_branch);
+//        $display("  pc_plus_4      = %h", MIPSTOP.pc_plus_4);
+//        $display("  branch_target  = %h", MIPSTOP.branch_target);
+//        $display("  pc_next        = %h", MIPSTOP.pc_next);
+//        $display("  jump           = %b", MIPSTOP.jump);
+//        $display("  jump_target    = %h", MIPSTOP.jump_target);
+//    end
+//end
+
+always @(posedge clk) begin
+    #1;
+    if (MIPSTOP.pc_current == 32'h00000034) begin
+        $display("--- At PC=0x34 (beq) ---");
+        $display("  $v1 = %h", MIPSTOP.rf_unit.register_file[3]);
+        $display("  $s3 = %h", MIPSTOP.rf_unit.register_file[19]);
+        $display("  branch_type = %b", MIPSTOP.branch_type);
+        $display("  zero_flag   = %b", MIPSTOP.zero_flag);
+        $display("  pc_next     = %h", MIPSTOP.pc_next);
+    end
+end
+  
   initial begin
     $display("\n========================================");
     
@@ -142,16 +181,16 @@ module tb_sc_mips ();
         $readmemh("mem_rand.dat", MIPSTOP.instruction_memory_unit.mem);
     end 
     else begin
-        $display("   MODE: DIRECTED ASSEMBLY TEST (mem.dat)");
+        $display("   MODE: DIRECTED ASSEMBLY TEST");
         $display("========================================");
-        $readmemh("mem.mem", MIPSTOP.instruction_memory_unit.mem);
+        $readmemh("Test4_v2.mem", MIPSTOP.instruction_memory_unit.mem);
         $display("DEBUG RAM CHECK: mem[0]=%h, mem[1]=%h, mem[2]=%h, mem[3]=%h", 
         MIPSTOP.instruction_memory_unit.mem[0], 
         MIPSTOP.instruction_memory_unit.mem[1], 
         MIPSTOP.instruction_memory_unit.mem[2], 
         MIPSTOP.instruction_memory_unit.mem[3]);
     end
-
+    
     // Standard Reset Sequence
     rst_n = 1;
     #(clk_period * 2);
@@ -159,7 +198,7 @@ module tb_sc_mips ();
     #(clk_period * 2);
     rst_n = 1;
     
-    #(clk_period * 100); // Let the processor run
+    #(clk_period * 200); // Let the processor run
 
     // Only run the hardcoded register checks if we are running the directed test
     if (!$test$plusargs("RANDOM")) begin

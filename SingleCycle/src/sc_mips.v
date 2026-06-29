@@ -2,7 +2,7 @@ module sc_mips #(parameter depth_of_instruction_memory = 1024) (
     input clk, rst_n
 );
     wire [4:0] alu_ctrl;
-    wire reg_write, alu_src, mem_write, jump, jump_register;
+    wire reg_write, alu_src, mem_write, jump, jump_register, srcB_zero;
     wire md_en;
     wire [2:0] branch_type, reg_dst, ext_ctrl, md_ctrl; 
     wire [2:0] mem_to_reg, mem_type;
@@ -15,7 +15,7 @@ module sc_mips #(parameter depth_of_instruction_memory = 1024) (
     
     wire [31:0] branch_target, jump_target, branch_pc_mux;
     wire zero_flag, gt_flag, lt_flag;
-    
+        
     // MUX 1: The Branch Evaluator 
     reg pc_src_branch;
     always @(*) begin
@@ -54,7 +54,7 @@ module sc_mips #(parameter depth_of_instruction_memory = 1024) (
     end
 
     // Datapath Connections
-    assign srcB = alu_src ? ext_imm : rd2;
+    assign srcB = alu_src ? (srcB_zero ? 32'b0 : ext_imm) : rd2;
     assign pc_plus_4 = pc_current + 4;
     assign branch_target = pc_plus_4 + (ext_imm << 2);
     assign jump_target = jump_register ? srcA : {pc_plus_4[31:28], instr[25:0], 2'b00};
@@ -71,7 +71,7 @@ module sc_mips #(parameter depth_of_instruction_memory = 1024) (
     );
 
     ctrl_unit control_unit(
-        .funct(instr[5:0]), .opcode(instr[31:26]), .rt(instr[20:16]),
+        .funct(instr[5:0]), .opcode(instr[31:26]), .srcB_zero(srcB_zero), .rt(instr[20:16]),
         .mem_to_reg(mem_to_reg), .branch_type(branch_type), .mem_write(mem_write),
         .alu_control(alu_ctrl), .alu_src(alu_src), .reg_dst(reg_dst),
         .reg_write(reg_write), .jump(jump), .jump_register(jump_register), .ext_ctrl(ext_ctrl),
