@@ -34,6 +34,7 @@ module mult_div(
                         hi_out = srcA % srcB; 
                         lo_out = srcA / srcB; 
                     end
+                end
             endcase
         end
     end
