@@ -14,7 +14,7 @@ typedef enum logic [5:0] {
 // Expanded Funct Codes (Added mfhi=16, mflo=18, mult=24, div=26)
 typedef enum logic [5:0] {
   sll = 0, srl = 2, sra = 3, sllv = 4, srlv = 6, srav = 7, 
-  jr = 8, mfhi = 16, mflo = 18, mult = 24, div = 26, 
+  jr = 8, mfhi = 16, mflo = 18, mult = 24, multu = 25, div = 26, divu = 27,
   add = 32, sub = 34, andd = 36, orr = 37, slt = 42
 } funct_e;
 
@@ -102,7 +102,7 @@ module tb_sc_mips ();
   transaction t = new();
   integer fd;
 
-  sc_mips MIPSTOP (
+  sc_mips #(.depth_of_instruction_memory(1024)) MIPSTOP (
       .clk (clk),
       .rst_n(rst_n)
   );
@@ -144,7 +144,7 @@ module tb_sc_mips ();
     else begin
         $display("   MODE: DIRECTED ASSEMBLY TEST (mem.dat)");
         $display("========================================");
-        $readmemh("mem.dat", MIPSTOP.instruction_memory_unit.mem);
+        $readmemh("mem.mem", MIPSTOP.instruction_memory_unit.mem);
         $display("DEBUG RAM CHECK: mem[0]=%h, mem[1]=%h, mem[2]=%h, mem[3]=%h", 
         MIPSTOP.instruction_memory_unit.mem[0], 
         MIPSTOP.instruction_memory_unit.mem[1], 
@@ -161,7 +161,6 @@ module tb_sc_mips ();
     
     #(clk_period * 100); // Let the processor run
 
-    // Only run the hardcoded register checks if we are running the directed test
     // Only run the hardcoded register checks if we are running the directed test
     if (!$test$plusargs("RANDOM")) begin
         if (MIPSTOP.rf_unit.register_file[16] === 32'h1337BEEF) begin

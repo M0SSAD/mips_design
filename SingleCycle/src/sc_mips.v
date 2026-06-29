@@ -1,4 +1,4 @@
-module sc_mips(
+module sc_mips #(parameter depth_of_instruction_memory = 1024) (
     input clk, rst_n
 );
     wire [3:0] alu_ctrl;
@@ -88,12 +88,12 @@ module sc_mips(
     );
 
     ram_memory ram_memory_unit(
-        .clk(clk), .byte_en(byte_en), .addr({alu_out[9:2], 2'b00}) // 10 bits for 1024 locations, each 4 locations describe a word,
+        .clk(clk), .byte_en(byte_en), .addr({alu_out[9:2], 2'b00}), // 10 bits for 1024 locations, each 4 locations describe a word,
         .wr_data(ram_wr_data), .rd_data(ram_rd_data)
     );
 
-    ram_memory instruction_memory_unit( // Hardwired to read only
-        .clk(clk), .byte_en(4'b0000), .addr(pc_current[9:0]),
+    ram_memory #(.depth(depth_of_instruction_memory)) instruction_memory_unit( // Hardwired to read only
+        .clk(clk), .byte_en(4'b0000), .addr(pc_current[$clog2(depth_of_instruction_memory)-1:0]),
         .wr_data(32'b0), .rd_data(instr)
     );
 
