@@ -72,7 +72,7 @@ module sc_mips(
         .mem_to_reg(mem_to_reg), .branch_type(branch_type), .mem_write(mem_write),
         .alu_control(alu_ctrl), .alu_src(alu_src), .reg_dst(reg_dst),
         .reg_write(reg_write), .jump(jump), .jump_register(jump_register), .ext_ctrl(ext_ctrl),
-        .mem_type(mem_type), .md_en(md_en), .md_ctrl(md_ctrl) // New signals
+        .mem_type(mem_type), .md_en(md_en), .md_ctrl(md_ctrl)
     );
 
     alu32_bit alu32_bit_unit(

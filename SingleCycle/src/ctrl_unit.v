@@ -1,4 +1,4 @@
-٩module ctrl_unit (
+module ctrl_unit (
     input wire [5:0]  funct, opcode,
     output reg [2:0] mem_to_reg, mem_type, // Expanded
     output reg [1:0] branch_type, reg_dst, ext_ctrl, md_ctrl,
