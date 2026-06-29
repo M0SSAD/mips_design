@@ -9,6 +9,7 @@ always @(*) begin
         2'b00: ext_imm = {{16{imm[15]}}, imm}; // Sign extend
         2'b01: ext_imm = {16'b0, imm}; // unsigned extension
         2'b10: ext_imm = {imm, 16'b0}; // upper extension
+        2'b11: ext_imm = 32'b0;
         default: ext_imm = 32'b0;
     endcase
 

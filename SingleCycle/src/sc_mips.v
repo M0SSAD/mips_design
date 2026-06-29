@@ -1,16 +1,17 @@
 module sc_mips #(parameter depth_of_instruction_memory = 1024) (
     input clk, rst_n
 );
-    wire [3:0] alu_ctrl;
+    wire [4:0] alu_ctrl;
     wire reg_write, alu_src, mem_write, jump, jump_register;
     wire md_en;
-    wire [1:0] branch_type, reg_dst, ext_ctrl, md_ctrl; 
+    wire [2:0] branch_type, reg_dst, ext_ctrl, md_ctrl; 
     wire [2:0] mem_to_reg, mem_type;
     
     wire[31:0] pc_current, pc_next, pc_plus_4;
     wire[31:0] instr, srcA, srcB, rd2, alu_out, ext_imm, ram_rd_data, aligned_rd_data, ram_wr_data;
-    wire [3:0] s0_reg, byte_en;
-    wire [31:0] hi_out, lo_out;
+    wire[3:0] byte_en;
+    wire[31:0] s0_reg;
+    wire[31:0] hi_out, lo_out;
     
     wire [31:0] branch_target, jump_target, branch_pc_mux;
     wire zero_flag, gt_flag, lt_flag;
@@ -19,9 +20,11 @@ module sc_mips #(parameter depth_of_instruction_memory = 1024) (
     reg pc_src_branch;
     always @(*) begin
         case (branch_type)
-            2'b01: pc_src_branch = zero_flag;       // beq
-            2'b10: pc_src_branch = ~zero_flag;      // bne
-            2'b11: pc_src_branch = lt_flag;         // bltz
+            3'b001: pc_src_branch = zero_flag;       // beq
+            3'b010: pc_src_branch = ~zero_flag;      // bne
+            3'b011: pc_src_branch = lt_flag;        // bltz
+            3'b100: pc_src_branch = gt_flag;        // bgtz
+            3'b101: pc_src_branch = gt_flag | zero_flag; // bgez (Greater or Equal)
             default: pc_src_branch = 1'b0;
         endcase
     end
@@ -68,7 +71,7 @@ module sc_mips #(parameter depth_of_instruction_memory = 1024) (
     );
 
     ctrl_unit control_unit(
-        .funct(instr[5:0]), .opcode(instr[31:26]),
+        .funct(instr[5:0]), .opcode(instr[31:26]), .rt(instr[20:16]),
         .mem_to_reg(mem_to_reg), .branch_type(branch_type), .mem_write(mem_write),
         .alu_control(alu_ctrl), .alu_src(alu_src), .reg_dst(reg_dst),
         .reg_write(reg_write), .jump(jump), .jump_register(jump_register), .ext_ctrl(ext_ctrl),
@@ -100,7 +103,7 @@ module sc_mips #(parameter depth_of_instruction_memory = 1024) (
     extend extension_Unit(.imm(instr[15:0]), .ext_imm(ext_imm), .ext_ctrl(ext_ctrl));
 
     mult_div mult_div_unit(
-        .clk(clk), .rst_n(rst_n), .srcA(srcA), .srcB(srcB),
+        .rst_n(rst_n), .srcA(srcA), .srcB(srcB),
         .md_en(md_en), .md_ctrl(md_ctrl), .hi_out(hi_out), .lo_out(lo_out)
     );
 endmodule
