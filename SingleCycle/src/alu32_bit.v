@@ -40,15 +40,13 @@ begin
         5'b00100: alu_out = srcA ^ srcB; // xor
         5'b00110: alu_out = srcA - srcB; // sub
         5'b00111: alu_out = (srcA < srcB)? 32'b1 : 32'b0; // slt
+        5'b01110: alu_out = ($unsigned(srcA) < $unsigned(srcB))? 32'b1 : 32'b0; // sltu
         5'b01000: alu_out = (srcB << shamt); // sll
         5'b01001: alu_out = (srcB >> shamt); // srl
         5'b01010: alu_out = (srcB >>> shamt); // sra
         5'b01011: alu_out = (srcB << srcA[4:0]);  // sllv
         5'b01100: alu_out = (srcB >> srcA[4:0]);  // srlv
         5'b01101: alu_out = (srcB >>> srcA[4:0]); // srav
-        5'b01110: alu_out = ($unsigned(srcA) < $unsigned(srcB))? 32'b1 : 32'b0; // sltu
-        5'b01111: alu_out = $unsigned(srcA) + $unsigned(srcB); // addu
-        5'b10000: alu_out = $unsigned(srcA) - $unsigned(srcB); // subu
         5'b10001: alu_out = srcB; // lui
         default: alu_out = srcA;
     endcase

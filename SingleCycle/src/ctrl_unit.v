@@ -78,9 +78,9 @@ always @(*) begin
         
         // R-Types
         9'b010_100000: alu_control = 5'b00010; // add
-        9'b010_100001: alu_control = 5'b01111; // addu
+        9'b010_100001: alu_control = 5'b00010; // addu
         9'b010_100010: alu_control = 5'b00110; // sub
-        9'b010_100011: alu_control = 5'b10000; // subu
+        9'b010_100011: alu_control = 5'b00110; // subu
         9'b010_100100: alu_control = 5'b00000; // and
         9'b010_100101: alu_control = 5'b00001; // or
         9'b010_100110: alu_control = 5'b00100; // xor
